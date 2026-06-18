@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Musical Karaoké — BAM Madeleine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ========================================================
+   REMPLACE CES DEUX VALEURS PAR CELLES DE TON PROJET SUPABASE
+   ======================================================== */
+:root{
+  --sb-url: 'https://orsfxzohgktypbetyojp.supabase.co';
+  --sb-key: 'sb_publishable_OdbAydUantYncwR4BAUp5A_QB87_U7Z';
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;min-height:100dvh}
+#app{max-width:500px;margin:0 auto;padding:1rem}
+.screen{display:none}.screen.active{display:block}
+
+/* Stage header */
+.stage{background:#534AB7;border-radius:16px;padding:2rem 1.5rem;text-align:center;margin-bottom:1.25rem}
+.stage-icon{font-size:36px;margin-bottom:0.5rem}
+.stage-title{font-size:24px;font-weight:600;color:#EEEDFE;margin-bottom:0.25rem}
+.stage-sub{font-size:14px;color:#AFA9EC}
+
+/* Rules */
+.rules{background:#FAEEDA;border:1px solid #F5D98C;border-radius:12px;padding:1rem 1.15rem;margin-bottom:1.25rem}
+.rules-title{font-size:13px;font-weight:600;color:#412402;margin-bottom:6px}
+.rules-body{font-size:13px;color:#633806;line-height:1.7}
+.rules-body strong{color:#412402}
+
+/* Category pills */
+.cats{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:1.25rem}
+.cat{font-size:11px;padding:3px 10px;border-radius:16px;font-weight:500}
+.c-purple{background:#EEEDFE;color:#534AB7}.c-teal{background:#E1F5EE;color:#0F6E56}
+.c-coral{background:#FAECE7;color:#993C1D}.c-pink{background:#FBEAF0;color:#993556}
+.c-amber{background:#FAEEDA;color:#854F0B}.c-blue{background:#E6F1FB;color:#185FA5}
+.c-green{background:#EAF3DE;color:#3B6D11}.c-party{background:#FFF0F5;color:#BE185D}
+
+/* Player grid */
+.section-lbl{font-size:13px;font-weight:500;color:#888;text-align:center;margin-bottom:10px}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.pchip{border-radius:20px;padding:10px 12px;display:flex;align-items:center;gap:8px;border:1px solid transparent;cursor:pointer;transition:transform .1s,opacity .15s}
+.pchip:hover:not(.done){transform:scale(1.02)}
+.pchip.done{opacity:.45;cursor:not-allowed}
+.pav{width:26px;height:26px;min-width:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.pname{font-size:13px;font-weight:500;flex:1}
+.pcheck{font-size:13px;margin-left:auto}
+.loading-msg{text-align:center;font-size:14px;color:#888;padding:2rem 0}
+
+/* Turn screen */
+.turn-av{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;margin:0 auto 1rem}
+.turn-name{font-size:22px;font-weight:600;color:#EEEDFE;margin-bottom:.4rem}
+.turn-sub{font-size:14px;color:#AFA9EC;margin-bottom:.4rem}
+.turn-rule{font-size:12px;color:#FAC775;margin-bottom:1.5rem;line-height:1.5}
+.go-btn{background:#FAC775;color:#412402;border:none;border-radius:10px;padding:11px 28px;font-size:15px;font-weight:600;cursor:pointer}
+.go-btn:hover{background:#EF9F27}
+.back-link{display:block;margin-top:.75rem;font-size:12px;color:#AFA9EC;background:none;border:none;cursor:pointer}
+
+/* Quiz */
+.banner{border-radius:10px;padding:7px 12px;margin-bottom:.6rem;display:flex;align-items:center;gap:8px;border:1px solid transparent}
+.ban-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;min-width:28px}
+.ban-name{font-size:13px;font-weight:600}
+.dots{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:.6rem}
+.dot{width:10px;height:10px;border-radius:50%;background:#EEEDFE;border:1px solid #D3D1C7}
+.dot.ok{background:#3B6D11;border-color:#3B6D11}
+.dot.ko{background:#E24B4A;border-color:#E24B4A}
+.dot.cur{background:#BA7517;border-color:#BA7517}
+.qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.qn{font-size:12px;font-weight:500;padding:3px 10px;border-radius:16px;background:#EEEDFE;color:#534AB7}
+.qc{font-size:11px;padding:3px 9px;border-radius:16px}
+.qs{font-size:12px;font-weight:500;padding:3px 10px;border-radius:16px;background:#E1F5EE;color:#0F6E56}
+.tbar-wrap{margin-bottom:.75rem}
+.tbar-track{height:7px;border-radius:4px;background:#EEEDFE;overflow:hidden}
+.tbar-fill{height:100%;border-radius:4px;transition:width .1s linear}
+.tg{background:#1D9E75}.ta{background:#BA7517}.tr{background:#E24B4A}
+.trow{display:flex;justify-content:space-between;margin-top:3px}
+.thint{font-size:11px;color:#888}.tnum{font-size:12px;font-weight:500;color:#888}
+.qtxt{font-size:16px;font-weight:500;line-height:1.5;margin-bottom:1rem;min-height:48px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.6rem}
+.opt{background:#fff;border:1px solid #E5E4E0;border-radius:10px;padding:11px 12px;font-size:13px;cursor:pointer;text-align:left;line-height:1.4;display:flex;align-items:flex-start;gap:8px;transition:background .12s,border-color .12s}
+.opt:hover:not(:disabled){background:#EEEDFE;border-color:#AFA9EC}
+.ol{width:20px;height:20px;min-width:20px;border-radius:50%;background:#EEEDFE;color:#534AB7;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.opt.correct{background:#EAF3DE;border-color:#3B6D11}
+.opt.correct .ol{background:#3B6D11;color:#EAF3DE}
+.opt.wrong{background:#FCEBEB;border-color:#A32D2D}
+.opt.wrong .ol{background:#A32D2D;color:#FCEBEB}
+.fb{font-size:13px;font-weight:500;min-height:18px}
+.fb-ok{color:#0F6E56}.fb-ko{color:#A32D2D}
+
+/* Result */
+.r-av{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;margin:0 auto .75rem}
+.r-name{font-size:17px;font-weight:500;color:#EEEDFE;margin-bottom:.6rem}
+.r-score{font-size:44px;font-weight:600;color:#FAC775;line-height:1.1}
+.r-lbl{font-size:12px;color:#AFA9EC;margin-top:.2rem}
+.r-detail{font-size:13px;color:#AFA9EC;margin-top:.6rem}
+.transmit{background:#FAEEDA;border:1px solid #F5D98C;border-radius:12px;padding:1rem;text-align:center;margin-bottom:1rem}
+.transmit-txt{font-size:13px;color:#633806;line-height:1.5;margin-top:4px}
+.transmit-txt strong{color:#412402}
+.done-btn{background:#534AB7;color:#EEEDFE;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;width:100%}
+.done-btn:hover{background:#3C3489}
+.err-msg{background:#FCEBEB;border:1px solid #E24B4A;border-radius:10px;padding:.75rem 1rem;font-size:13px;color:#A32D2D;margin-bottom:1rem;text-align:center}
+.link-classement{display:block;text-align:center;margin-top:.75rem;font-size:13px;color:#534AB7;text-decoration:underline}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ÉCRAN LOBBY -->
+<div id="s-lobby" class="screen active">
+  <div class="stage">
+    <div class="stage-icon">🎤</div>
+    <div class="stage-title">Quiz Musical Karaoké</div>
+    <div class="stage-sub">BAM Madeleine · 2 juillet 2026</div>
+  </div>
+  <div class="rules">
+    <div class="rules-title">📋 Règles & barème</div>
+    <div class="rules-body">
+      <strong>20 questions</strong> · 4 propositions · <strong>10 secondes</strong> par question<br>
+      Bonne réponse = <strong>secondes restantes</strong> (plus c'est rapide, plus ça rapporte !)<br>
+      Mauvaise réponse ou temps écoulé = <strong>0 point</strong><br>
+      Score maximum possible = <strong>200 points</strong> · Une seule tentative par joueur
+    </div>
+  </div>
+  <div class="cats">
+    <span class="cat c-purple">Variété française</span>
+    <span class="cat c-teal">Soul / Funk</span>
+    <span class="cat c-coral">Afrobeat</span>
+    <span class="cat c-pink">Hip-Hop / R&B</span>
+    <span class="cat c-amber">Latino</span>
+    <span class="cat c-blue">Pop internationale</span>
+    <span class="cat c-green">Rock / Classics</span>
+    <span class="cat c-party">Soirée karaoké</span>
+  </div>
+  <div class="section-lbl">Sélectionne ton prénom pour commencer</div>
+  <div id="pgrid" class="pgrid"></div>
+  <div id="load-msg" class="loading-msg">Chargement...</div>
+  <a class="link-classement" href="classement.html">📊 Voir le classement</a>
+</div>
+
+<!-- ÉCRAN CONFIRMATION -->
+<div id="s-turn" class="screen">
+  <div class="stage" style="padding:2.5rem 1.5rem">
+    <div class="turn-av" id="turn-av"></div>
+    <div class="turn-name" id="turn-name"></div>
+    <div class="turn-sub">20 questions · 10 secondes chacune</div>
+    <div class="turn-rule">Réponds vite : bonne réponse = secondes restantes · mauvaise = 0 pt</div>
+    <button class="go-btn" onclick="beginRound()">C'est parti !</button>
+    <button class="back-link" onclick="goLobby()">← Ce n'est pas moi</button>
+  </div>
+</div>
+
+<!-- ÉCRAN QUIZ -->
+<div id="s-quiz" class="screen">
+  <div class="banner" id="banner"></div>
+  <div class="dots" id="dots"></div>
+  <div class="qhead">
+    <span class="qn" id="qnum"></span>
+    <span class="qc" id="qcat"></span>
+    <span class="qs" id="qlive"></span>
+  </div>
+  <div class="tbar-wrap">
+    <div class="tbar-track"><div class="tbar-fill tg" id="tbar" style="width:100%"></div></div>
+    <div class="trow"><span class="thint">+<span id="ppts">10</span> pts si bonne réponse</span><span class="tnum" id="tnum">10</span></div>
+  </div>
+  <div class="qtxt" id="qtext"></div>
+  <div class="opts" id="opts"></div>
+  <div class="fb" id="fb"></div>
+</div>
+
+<!-- ÉCRAN RÉSULTAT -->
+<div id="s-result" class="screen">
+  <div class="stage" style="padding:2rem 1.5rem">
+    <div style="font-size:32px;margin-bottom:.5rem">🏆</div>
+    <div class="r-av" id="r-av"></div>
+    <div class="r-name" id="r-name"></div>
+    <div class="r-score" id="r-score">0</div>
+    <div class="r-lbl">points sur 200</div>
+    <div class="r-detail" id="r-detail"></div>
+  </div>
+  <div id="err-zone"></div>
+  <div class="transmit">
+    <div style="font-size:20px">📸</div>
+    <div class="transmit-txt">Fais une <strong>capture d'écran</strong> de ton score !<br>Le classement est aussi visible sur <strong>la page classement</strong>.</div>
+  </div>
+  <a class="link-classement" href="classement.html" style="margin-bottom:1rem">📊 Voir le classement en direct</a>
+  <button class="done-btn" onclick="goLobby()">Retour à l'accueil</button>
+</div>
+
+</div>
+
+<script>
+/* ========================================================
+   ⚠️  REMPLACE CES DEUX VALEURS PAR CELLES DE TON PROJET SUPABASE
+   ======================================================== */
+const SUPABASE_URL = 'REMPLACER_PAR_VOTRE_URL';
+const SUPABASE_KEY = 'REMPLACER_PAR_VOTRE_CLE';
+/* ======================================================== */
+
+const PLAYERS=[
+  {name:'Sophie',bg:'#EEEDFE',tc:'#534AB7',av:'#534AB7',avt:'#EEEDFE'},
+  {name:'Rabiyatou',bg:'#FBEAF0',tc:'#993556',av:'#D4537E',avt:'#FBEAF0'},
+  {name:'Arielle',bg:'#E1F5EE',tc:'#0F6E56',av:'#1D9E75',avt:'#E1F5EE'},
+  {name:'Frédéric',bg:'#FAEEDA',tc:'#854F0B',av:'#BA7517',avt:'#FAEEDA'},
+  {name:'Southarath',bg:'#FAECE7',tc:'#993C1D',av:'#D85A30',avt:'#FAECE7'},
+  {name:'Sandrine',bg:'#E6F1FB',tc:'#185FA5',av:'#378ADD',avt:'#E6F1FB'},
+  {name:'Patricia',bg:'#EAF3DE',tc:'#3B6D11',av:'#639922',avt:'#EAF3DE'},
+  {name:'Endhita',bg:'#FCEBEB',tc:'#A32D2D',av:'#E24B4A',avt:'#FCEBEB'},
+  {name:'Paola',bg:'#EEEDFE',tc:'#3C3489',av:'#7F77DD',avt:'#EEEDFE'},
+  {name:'Sylvie',bg:'#F1EFE8',tc:'#5F5E5A',av:'#888780',avt:'#F1EFE8'},
+  {name:'Laetitia',bg:'#FBEAF0',tc:'#72243E',av:'#993556',avt:'#FBEAF0'},
+  {name:'Fabrice',bg:'#E1F5EE',tc:'#085041',av:'#5DCAA5',avt:'#E1F5EE'},
+  {name:'Sakura',bg:'#FAEEDA',tc:'#633806',av:'#EF9F27',avt:'#FAEEDA'},
+  {name:'Christian',bg:'#FAECE7',tc:'#712B13',av:'#F0997B',avt:'#FAECE7'},
+];
+
+const POOL=[
+  {q:"Quel artiste a sorti l'album 'Thriller' en 1982 ?",opts:["Prince","Michael Jackson","James Brown","Stevie Wonder"],ans:1,cat:"Pop internationale"},
+  {q:"Quelle chanteuse française a interprété 'Je ne regrette rien' ?",opts:["Dalida","Édith Piaf","Barbara","Françoise Hardy"],ans:1,cat:"Variété française"},
+  {q:"Qui a popularisé la danse 'La Macarena' en 1995 ?",opts:["Ricky Martin","Los del Río","Marc Anthony","Shakira"],ans:1,cat:"Latino"},
+  {q:"Quel groupe a sorti 'Bohemian Rhapsody' ?",opts:["The Rolling Stones","Led Zeppelin","Queen","The Beatles"],ans:2,cat:"Rock / Classics"},
+  {q:"Quel artiste nigérian figure sur 'One Dance' avec Drake ?",opts:["Wizkid","Burna Boy","Davido","Tiwa Savage"],ans:0,cat:"Afrobeat"},
+  {q:"Aretha Franklin est surnommée la reine de... ?",opts:["La Pop","La Soul","Le Jazz","Le Funk"],ans:1,cat:"Soul / Funk"},
+  {q:"Quelle chanson de Stromae a pour refrain 'Alors on danse' ?",opts:["Papaoutai","Formidable","Alors on danse","Ta fête"],ans:2,cat:"Variété française"},
+  {q:"Qui a chanté 'I Will Always Love You' dans le film Bodyguard ?",opts:["Celine Dion","Mariah Carey","Whitney Houston","Tina Turner"],ans:2,cat:"Soul / Funk"},
+  {q:"Quel artiste camerounais a chanté 'Soul Makossa' en 1972 ?",opts:["Manu Dibango","Francis Bebey","Richard Bona","Petit Pays"],ans:0,cat:"Afrobeat"},
+  {q:"Quel groupe britannique a sorti 'Wannabe' en 1996 ?",opts:["TLC","Spice Girls","All Saints","Destiny's Child"],ans:1,cat:"Pop internationale"},
+  {q:"Qui a chanté 'Lose Yourself' dans le film 8 Mile ?",opts:["50 Cent","Dr. Dre","Eminem","Snoop Dogg"],ans:2,cat:"Hip-Hop / R&B"},
+  {q:"Quel trio américain a popularisé 'Waterfalls' en 1995 ?",opts:["Destiny's Child","TLC","En Vogue","SWV"],ans:1,cat:"Soul / Funk"},
+  {q:"Shakira est originaire de quel pays ?",opts:["Venezuela","Colombie","Brésil","Argentine"],ans:1,cat:"Latino"},
+  {q:"Quel groupe a chanté 'Le Freak' en 1978 ?",opts:["Earth Wind & Fire","Chic","KC and the Sunshine Band","Village People"],ans:1,cat:"Soul / Funk"},
+  {q:"Qui sont les deux organisateurs de cette soirée karaoké ?",opts:["Sophie et Fabrice","Laetitia et Frédéric","Christian et Endhita","Paola et Sandrine"],ans:2,cat:"Soirée karaoké"},
+  {q:"Quelle organisatrice est LA spécialiste incontestée du karaoké ?",opts:["Sophie","Endhita","Sakura","Arielle"],ans:1,cat:"Soirée karaoké"},
+  {q:"Quel organisateur est connu pour ses avancées en IA dans le service ?",opts:["Fabrice","Christian","Frédéric","Southarath"],ans:1,cat:"Soirée karaoké"},
+  {q:"Quel sport Christian pratique-t-il (en se blessant régulièrement) ?",opts:["Tennis","Football","Basketball","Rugby"],ans:1,cat:"Soirée karaoké"},
+  {q:"Quel est le montant par personne pour cette soirée ?",opts:["23,10 €","19,90 €","21,40 €","25,00 €"],ans:2,cat:"Soirée karaoké"},
+  {q:"À quelle heure commence la soirée le 2 juillet ?",opts:["19h00","19h10","19h30","20h00"],ans:1,cat:"Soirée karaoké"},
+];
+
+const CAT_STYLES={'Variété française':'c-purple','Hip-Hop / R&B':'c-pink','Afrobeat':'c-coral','Soul / Funk':'c-teal','Latino':'c-amber','Pop internationale':'c-blue','Rock / Classics':'c-green','Soirée karaoké':'c-party'};
+const LETTERS=['A','B','C','D'];
+const NQ=20;
+
+let sb=null;
+let playedNames=new Set();
+let currentPlayer=null;
+let score=0;let correctCount=0;
+let pQs=[];let cQ=0;
+let timer=null;let tLeft=10;let active=false;
+
+async function init(){
+  try{
+    sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    const{data,error}=await sb.from('scores').select('prenom');
+    if(!error&&data){data.forEach(r=>playedNames.add(r.prenom));}
+  }catch(e){console.warn('Supabase init error',e);}
+  document.getElementById('load-msg').style.display='none';
+  renderGrid();
+}
+
+function renderGrid(){
+  const g=document.getElementById('pgrid');
+  g.innerHTML='';g.style.display='grid';
+  PLAYERS.forEach(p=>{
+    const done=playedNames.has(p.name);
+    const d=document.createElement('div');
+    d.className='pchip'+(done?' done':'');
+    d.style.background=p.bg;d.style.borderColor=p.av;
+    const chk=done?`<span class="pcheck" style="color:${p.tc}">✓</span>`:'';
+    d.innerHTML=`<div class="pav" style="background:${p.av};color:${p.avt}">${p.name.charAt(0)}</div><span class="pname" style="color:${p.tc}">${p.name}</span>${chk}`;
+    if(!done)d.onclick=()=>selectPlayer(p);
+    g.appendChild(d);
+  });
+}
+
+function selectPlayer(p){
+  currentPlayer=p;
+  const av=document.getElementById('turn-av');
+  av.textContent=p.name.charAt(0);av.style.background=p.av;av.style.color=p.avt;
+  document.getElementById('turn-name').textContent='Salut '+p.name+' !';
+  show('s-turn');
+}
+
+function beginRound(){
+  const p=currentPlayer;
+  pQs=shuffle([...POOL]);cQ=0;score=0;correctCount=0;
+  const bn=document.getElementById('banner');
+  bn.style.background=p.bg;bn.style.borderColor=p.av;
+  bn.innerHTML=`<div class="ban-av" style="background:${p.av};color:${p.avt}">${p.name.charAt(0)}</div><span class="ban-name" style="color:${p.tc}">${p.name}</span>`;
+  show('s-quiz');buildDots();showQ();
+}
+
+function buildDots(){
+  const w=document.getElementById('dots');w.innerHTML='';
+  for(let i=0;i<NQ;i++){const d=document.createElement('div');d.className='dot'+(i===0?' cur':'');d.id='d'+i;w.appendChild(d);}
+}
+
+function showQ(){
+  clearInterval(timer);const q=pQs[cQ];
+  document.getElementById('qnum').textContent='Q '+(cQ+1)+' / '+NQ;
+  const qc=document.getElementById('qcat');qc.className='qc '+(CAT_STYLES[q.cat]||'c-purple');qc.textContent=q.cat;
+  document.getElementById('qlive').textContent='Score : '+score;
+  document.getElementById('qtext').textContent=q.q;
+  document.getElementById('fb').textContent='';document.getElementById('fb').className='fb';
+  const og=document.getElementById('opts');og.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');b.className='opt';
+    b.innerHTML=`<span class="ol">${LETTERS[i]}</span><span>${o}</span>`;
+    b.onclick=()=>pick(i);og.appendChild(b);
+  });
+  tLeft=10;active=true;updateTimer(10);
+  timer=setInterval(()=>{tLeft-=0.1;updateTimer(tLeft);if(tLeft<=0){clearInterval(timer);if(active)timeUp();}},100);
+}
+
+function updateTimer(v){
+  const pct=Math.max(0,(v/10)*100);
+  const bar=document.getElementById('tbar');
+  bar.style.width=pct+'%';
+  bar.className='tbar-fill '+(pct>50?'tg':pct>20?'ta':'tr');
+  const s=Math.max(1,Math.ceil(Math.max(0,v)));
+  document.getElementById('tnum').textContent=Math.ceil(Math.max(0,v));
+  document.getElementById('ppts').textContent=s;
+}
+
+function pick(idx){
+  if(!active)return;active=false;clearInterval(timer);
+  const q=pQs[cQ];const btns=document.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  const ok=idx===q.ans;let gained=0;
+  btns[idx].classList.add(ok?'correct':'wrong');
+  btns[q.ans].classList.add('correct');
+  if(ok){gained=Math.max(1,Math.ceil(tLeft));score+=gained;correctCount++;}
+  document.getElementById('fb').textContent=ok?('Bonne réponse ! +'+gained+' pts'):'Mauvaise réponse · 0 pt';
+  document.getElementById('fb').className='fb '+(ok?'fb-ok':'fb-ko');
+  document.getElementById('qlive').textContent='Score : '+score;
+  setDot(cQ,ok?'ok':'ko');
+  setTimeout(next,1400);
+}
+
+function timeUp(){
+  active=false;const q=pQs[cQ];const btns=document.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);btns[q.ans].classList.add('correct');
+  document.getElementById('fb').textContent='Temps écoulé · 0 pt';
+  document.getElementById('fb').className='fb fb-ko';
+  setDot(cQ,'ko');setTimeout(next,1400);
+}
+
+function setDot(i,cls){
+  const d=document.getElementById('d'+i);if(d)d.className='dot '+cls;
+  const n=document.getElementById('d'+(i+1));if(n)n.className='dot cur';
+}
+
+function next(){cQ++;if(cQ>=NQ)showResult();else showQ();}
+
+async function showResult(){
+  const p=currentPlayer;
+  playedNames.add(p.name);
+  const av=document.getElementById('r-av');
+  av.textContent=p.name.charAt(0);av.style.background=p.av;av.style.color=p.avt;
+  document.getElementById('r-name').textContent=p.name;
+  document.getElementById('r-score').textContent=score;
+  document.getElementById('r-detail').textContent=correctCount+' bonnes réponses sur '+NQ;
+  document.getElementById('err-zone').innerHTML='';
+  show('s-result');
+  if(sb){
+    try{
+      const{error}=await sb.from('scores').insert({prenom:p.name,points:score,bonnes_reponses:correctCount});
+      if(error){
+        if(error.code==='23505'){
+          document.getElementById('err-zone').innerHTML='<div class="err-msg">Tu as déjà joué ! Ton premier score est conservé.</div>';
+        }else{
+          document.getElementById('err-zone').innerHTML='<div class="err-msg">Erreur lors de l\'envoi du score. Fais une capture d\'écran !</div>';
+        }
+      }
+    }catch(e){
+      document.getElementById('err-zone').innerHTML='<div class="err-msg">Connexion impossible. Fais une capture d\'écran de ton score !</div>';
+    }
+  }
+}
+
+function goLobby(){renderGrid();show('s-lobby');}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+init();
+</script>
+</body>
+</html>
