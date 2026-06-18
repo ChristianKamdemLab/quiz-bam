@@ -8,39 +8,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ========================================================
-   REMPLACE CES DEUX VALEURS PAR CELLES DE TON PROJET SUPABASE
-   ======================================================== */
-:root{
-  --sb-url: 'https://orsfxzohgktypbetyojp.supabase.co';
-  --sb-key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yc2Z4em9oZ2t0eXBiZXR5b2pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3ODU0MDIsImV4cCI6MjA5NzM2MTQwMn0.96SLALm9dpmn1roBSln6vqZnujq04kvtl_JhXMC8RkA';
-}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;min-height:100dvh}
 #app{max-width:500px;margin:0 auto;padding:1rem}
 .screen{display:none}.screen.active{display:block}
-
-/* Stage header */
 .stage{background:#534AB7;border-radius:16px;padding:2rem 1.5rem;text-align:center;margin-bottom:1.25rem}
 .stage-icon{font-size:36px;margin-bottom:0.5rem}
 .stage-title{font-size:24px;font-weight:600;color:#EEEDFE;margin-bottom:0.25rem}
 .stage-sub{font-size:14px;color:#AFA9EC}
-
-/* Rules */
 .rules{background:#FAEEDA;border:1px solid #F5D98C;border-radius:12px;padding:1rem 1.15rem;margin-bottom:1.25rem}
 .rules-title{font-size:13px;font-weight:600;color:#412402;margin-bottom:6px}
 .rules-body{font-size:13px;color:#633806;line-height:1.7}
 .rules-body strong{color:#412402}
-
-/* Category pills */
 .cats{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:1.25rem}
 .cat{font-size:11px;padding:3px 10px;border-radius:16px;font-weight:500}
 .c-purple{background:#EEEDFE;color:#534AB7}.c-teal{background:#E1F5EE;color:#0F6E56}
 .c-coral{background:#FAECE7;color:#993C1D}.c-pink{background:#FBEAF0;color:#993556}
 .c-amber{background:#FAEEDA;color:#854F0B}.c-blue{background:#E6F1FB;color:#185FA5}
 .c-green{background:#EAF3DE;color:#3B6D11}.c-party{background:#FFF0F5;color:#BE185D}
-
-/* Player grid */
+.c-team{background:#FEF3C7;color:#92400E}
 .section-lbl{font-size:13px;font-weight:500;color:#888;text-align:center;margin-bottom:10px}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
 .pchip{border-radius:20px;padding:10px 12px;display:flex;align-items:center;gap:8px;border:1px solid transparent;cursor:pointer;transition:transform .1s,opacity .15s}
@@ -50,8 +36,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;m
 .pname{font-size:13px;font-weight:500;flex:1}
 .pcheck{font-size:13px;margin-left:auto}
 .loading-msg{text-align:center;font-size:14px;color:#888;padding:2rem 0}
-
-/* Turn screen */
 .turn-av{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;margin:0 auto 1rem}
 .turn-name{font-size:22px;font-weight:600;color:#EEEDFE;margin-bottom:.4rem}
 .turn-sub{font-size:14px;color:#AFA9EC;margin-bottom:.4rem}
@@ -59,13 +43,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;m
 .go-btn{background:#FAC775;color:#412402;border:none;border-radius:10px;padding:11px 28px;font-size:15px;font-weight:600;cursor:pointer}
 .go-btn:hover{background:#EF9F27}
 .back-link{display:block;margin-top:.75rem;font-size:12px;color:#AFA9EC;background:none;border:none;cursor:pointer}
-
-/* Quiz */
 .banner{border-radius:10px;padding:7px 12px;margin-bottom:.6rem;display:flex;align-items:center;gap:8px;border:1px solid transparent}
 .ban-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;min-width:28px}
 .ban-name{font-size:13px;font-weight:600}
 .dots{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:.6rem}
-.dot{width:10px;height:10px;border-radius:50%;background:#EEEDFE;border:1px solid #D3D1C7}
+.dot{width:8px;height:8px;border-radius:50%;background:#EEEDFE;border:1px solid #D3D1C7}
 .dot.ok{background:#3B6D11;border-color:#3B6D11}
 .dot.ko{background:#E24B4A;border-color:#E24B4A}
 .dot.cur{background:#BA7517;border-color:#BA7517}
@@ -90,8 +72,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;m
 .opt.wrong .ol{background:#A32D2D;color:#FCEBEB}
 .fb{font-size:13px;font-weight:500;min-height:18px}
 .fb-ok{color:#0F6E56}.fb-ko{color:#A32D2D}
-
-/* Result */
 .r-av{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;margin:0 auto .75rem}
 .r-name{font-size:17px;font-weight:500;color:#EEEDFE;margin-bottom:.6rem}
 .r-score{font-size:44px;font-weight:600;color:#FAC775;line-height:1.1}
@@ -108,8 +88,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;m
 </head>
 <body>
 <div id="app">
-
-<!-- ÉCRAN LOBBY -->
 <div id="s-lobby" class="screen active">
   <div class="stage">
     <div class="stage-icon">🎤</div>
@@ -119,10 +97,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;m
   <div class="rules">
     <div class="rules-title">📋 Règles & barème</div>
     <div class="rules-body">
-      <strong>20 questions</strong> · 4 propositions · <strong>10 secondes</strong> par question<br>
+      <strong>35 questions</strong> · 4 propositions · <strong>10 secondes</strong> par question<br>
       Bonne réponse = <strong>secondes restantes</strong> (plus c'est rapide, plus ça rapporte !)<br>
       Mauvaise réponse ou temps écoulé = <strong>0 point</strong><br>
-      Score maximum possible = <strong>200 points</strong> · Une seule tentative par joueur
+      Score maximum possible = <strong>350 points</strong> · Une seule tentative par joueur
     </div>
   </div>
   <div class="cats">
@@ -134,26 +112,23 @@ body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;m
     <span class="cat c-blue">Pop internationale</span>
     <span class="cat c-green">Rock / Classics</span>
     <span class="cat c-party">Soirée karaoké</span>
+    <span class="cat c-team">L'équipe</span>
   </div>
   <div class="section-lbl">Sélectionne ton prénom pour commencer</div>
   <div id="pgrid" class="pgrid"></div>
   <div id="load-msg" class="loading-msg">Chargement...</div>
   <a class="link-classement" href="classement.html">📊 Voir le classement</a>
 </div>
-
-<!-- ÉCRAN CONFIRMATION -->
 <div id="s-turn" class="screen">
   <div class="stage" style="padding:2.5rem 1.5rem">
     <div class="turn-av" id="turn-av"></div>
     <div class="turn-name" id="turn-name"></div>
-    <div class="turn-sub">20 questions · 10 secondes chacune</div>
+    <div class="turn-sub">35 questions · 10 secondes chacune</div>
     <div class="turn-rule">Réponds vite : bonne réponse = secondes restantes · mauvaise = 0 pt</div>
     <button class="go-btn" onclick="beginRound()">C'est parti !</button>
     <button class="back-link" onclick="goLobby()">← Ce n'est pas moi</button>
   </div>
 </div>
-
-<!-- ÉCRAN QUIZ -->
 <div id="s-quiz" class="screen">
   <div class="banner" id="banner"></div>
   <div class="dots" id="dots"></div>
@@ -170,15 +145,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;m
   <div class="opts" id="opts"></div>
   <div class="fb" id="fb"></div>
 </div>
-
-<!-- ÉCRAN RÉSULTAT -->
 <div id="s-result" class="screen">
   <div class="stage" style="padding:2rem 1.5rem">
     <div style="font-size:32px;margin-bottom:.5rem">🏆</div>
     <div class="r-av" id="r-av"></div>
     <div class="r-name" id="r-name"></div>
     <div class="r-score" id="r-score">0</div>
-    <div class="r-lbl">points sur 200</div>
+    <div class="r-lbl">points sur 350</div>
     <div class="r-detail" id="r-detail"></div>
   </div>
   <div id="err-zone"></div>
@@ -189,15 +162,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:#F8F7F4;color:#1a1a1a;m
   <a class="link-classement" href="classement.html" style="margin-bottom:1rem">📊 Voir le classement en direct</a>
   <button class="done-btn" onclick="goLobby()">Retour à l'accueil</button>
 </div>
-
 </div>
-
 <script>
 /* ========================================================
    ⚠️  REMPLACE CES DEUX VALEURS PAR CELLES DE TON PROJET SUPABASE
    ======================================================== */
 const SUPABASE_URL = 'https://orsfxzohgktypbetyojp.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yc2Z4em9oZ2t0eXBiZXR5b2pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3ODU0MDIsImV4cCI6MjA5NzM2MTQwMn0.96SLALm9dpmn1roBSln6vqZnujq04kvtl_JhXMC8RkA';
+const SUPABASE_KEY = 'sb_publishable_OdbAydUantYncwR4BAUp5A_QB87_U7Z';
 /* ======================================================== */
 
 const PLAYERS=[
@@ -218,6 +189,7 @@ const PLAYERS=[
 ];
 
 const POOL=[
+  // === MUSIQUE (16 questions) ===
   {q:"Quel artiste a sorti l'album 'Thriller' en 1982 ?",opts:["Prince","Michael Jackson","James Brown","Stevie Wonder"],ans:1,cat:"Pop internationale"},
   {q:"Quelle chanteuse française a interprété 'Je ne regrette rien' ?",opts:["Dalida","Édith Piaf","Barbara","Françoise Hardy"],ans:1,cat:"Variété française"},
   {q:"Qui a popularisé la danse 'La Macarena' en 1995 ?",opts:["Ricky Martin","Los del Río","Marc Anthony","Shakira"],ans:1,cat:"Latino"},
@@ -230,19 +202,38 @@ const POOL=[
   {q:"Quel groupe britannique a sorti 'Wannabe' en 1996 ?",opts:["TLC","Spice Girls","All Saints","Destiny's Child"],ans:1,cat:"Pop internationale"},
   {q:"Qui a chanté 'Lose Yourself' dans le film 8 Mile ?",opts:["50 Cent","Dr. Dre","Eminem","Snoop Dogg"],ans:2,cat:"Hip-Hop / R&B"},
   {q:"Quel trio américain a popularisé 'Waterfalls' en 1995 ?",opts:["Destiny's Child","TLC","En Vogue","SWV"],ans:1,cat:"Soul / Funk"},
-  {q:"Shakira est originaire de quel pays ?",opts:["Venezuela","Colombie","Brésil","Argentine"],ans:1,cat:"Latino"},
   {q:"Quel groupe a chanté 'Le Freak' en 1978 ?",opts:["Earth Wind & Fire","Chic","KC and the Sunshine Band","Village People"],ans:1,cat:"Soul / Funk"},
-  {q:"Qui sont les deux organisateurs de cette soirée karaoké ?",opts:["Sophie et Fabrice","Laetitia et Frédéric","Christian et Endhita","Paola et Sandrine"],ans:2,cat:"Soirée karaoké"},
-  {q:"Quelle organisatrice est LA spécialiste incontestée du karaoké ?",opts:["Sophie","Endhita","Sakura","Arielle"],ans:1,cat:"Soirée karaoké"},
-  {q:"Quel organisateur est connu pour ses avancées en IA dans le service ?",opts:["Fabrice","Christian","Frédéric","Southarath"],ans:1,cat:"Soirée karaoké"},
-  {q:"Quel sport Christian pratique-t-il (en se blessant régulièrement) ?",opts:["Tennis","Football","Basketball","Rugby"],ans:1,cat:"Soirée karaoké"},
+  {q:"Quel artiste a sorti 'God's Plan' en 2018 ?",opts:["Travis Scott","Post Malone","Drake","Future"],ans:2,cat:"Hip-Hop / R&B"},
+  {q:"Dans quel pays est né Fela Kuti, pionnier de l'afrobeat ?",opts:["Ghana","Nigeria","Sénégal","Côte d'Ivoire"],ans:1,cat:"Afrobeat"},
+  {q:"Quelle chanteuse a sorti l'album 'Lemonade' en 2016 ?",opts:["Rihanna","Adele","Beyoncé","Alicia Keys"],ans:2,cat:"Pop internationale"},
+
+  // === SOIRÉE KARAOKÉ (3 questions) ===
   {q:"Quel est le montant par personne pour cette soirée ?",opts:["23,10 €","19,90 €","21,40 €","25,00 €"],ans:2,cat:"Soirée karaoké"},
   {q:"À quelle heure commence la soirée le 2 juillet ?",opts:["19h00","19h10","19h30","20h00"],ans:1,cat:"Soirée karaoké"},
+  {q:"Dans quel lieu se déroule le karaoké ?",opts:["BAM Opéra","BAM Madeleine","BAM Bastille","BAM Châtelet"],ans:1,cat:"Soirée karaoké"},
+
+  // === L'ÉQUIPE (16 questions) ===
+  {q:"Qui sont les deux organisateurs de cette soirée karaoké ?",opts:["Sophie et Fabrice","Laetitia et Frédéric","Christian et Endhita","Paola et Sandrine"],ans:2,cat:"L'équipe"},
+  {q:"Quelle organisatrice est LA spécialiste incontestée du karaoké ?",opts:["Sophie","Endhita","Sakura","Arielle"],ans:1,cat:"L'équipe"},
+  {q:"De quel pays Endhita est-elle originaire ?",opts:["Thaïlande","Vietnam","Indonésie","Philippines"],ans:2,cat:"L'équipe"},
+  {q:"Sur quel chantier Endhita travaille-t-elle ?",opts:["Portail KYC","SI Diligences","RefTiers","DMO"],ans:1,cat:"L'équipe"},
+  {q:"Quel organisateur est connu pour ses avancées en IA dans le service ?",opts:["Fabrice","Christian","Frédéric","Southarath"],ans:1,cat:"L'équipe"},
+  {q:"Quel sport Christian pratique-t-il (en se blessant régulièrement) ?",opts:["Tennis","Football","Basketball","Rugby"],ans:1,cat:"L'équipe"},
+  {q:"De quel pays Paola est-elle originaire ?",opts:["Mexique","Colombie","Pérou","Venezuela"],ans:1,cat:"L'équipe"},
+  {q:"Qui est le spécialiste RefTiers dans l'équipe ?",opts:["Frédéric","Christian","Southarath","Fabrice"],ans:2,cat:"L'équipe"},
+  {q:"Qui est la responsable de DMO ?",opts:["Sophie","Sandrine","Rabiyatou","Laetitia"],ans:2,cat:"L'équipe"},
+  {q:"Qui s'occupe du Portail KYC ?",opts:["Arielle","Patricia","Sandrine","Sylvie"],ans:2,cat:"L'équipe"},
+  {q:"Quel collègue est récemment devenu grand-père ?",opts:["Frédéric","Christian","Fabrice","Southarath"],ans:2,cat:"L'équipe"},
+  {q:"Qui est la plus récente arrivée dans l'équipe ?",opts:["Sakura","Arielle","Paola","Endhita"],ans:1,cat:"L'équipe"},
+  {q:"Quelle collègue aime nous confectionner des gâteaux ?",opts:["Sophie","Laetitia","Sylvie","Patricia"],ans:2,cat:"L'équipe"},
+  {q:"Quel collègue est l'heureux propriétaire d'un chat ?",opts:["Christian","Fabrice","Southarath","Frédéric"],ans:3,cat:"L'équipe"},
+  {q:"Quelle collègue a travaillé dans l'industrie de la musique ?",opts:["Sylvie","Patricia","Laetitia","Sandrine"],ans:1,cat:"L'équipe"},
+  {q:"Quelle collègue a vécu et travaillé à Londres ?",opts:["Arielle","Paola","Sophie","Laetitia"],ans:3,cat:"L'équipe"},
 ];
 
-const CAT_STYLES={'Variété française':'c-purple','Hip-Hop / R&B':'c-pink','Afrobeat':'c-coral','Soul / Funk':'c-teal','Latino':'c-amber','Pop internationale':'c-blue','Rock / Classics':'c-green','Soirée karaoké':'c-party'};
+const CAT_STYLES={'Variété française':'c-purple','Hip-Hop / R&B':'c-pink','Afrobeat':'c-coral','Soul / Funk':'c-teal','Latino':'c-amber','Pop internationale':'c-blue','Rock / Classics':'c-green','Soirée karaoké':'c-party',"L'équipe":'c-team'};
 const LETTERS=['A','B','C','D'];
-const NQ=20;
+const NQ=35;
 
 let sb=null;
 let playedNames=new Set();
